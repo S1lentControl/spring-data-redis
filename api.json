@@ -1,0 +1,146 @@
+#%RAML 1.0
+title: "Document"
+description: "Сервис Document"
+version: "1.0.0"
+types:
+  DocumentCreated:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Идентификатор документа"
+  Document:
+    type: "object"
+    properties:
+      allOf:
+        type: "DocumentCreated"
+        required: false
+      createdAt:
+        type: "datetime"
+        description: "Дата создания документа"
+        required: false
+      extId:
+        type: "string"
+        description: "Идентификатор документа во внешней системе"
+        required: false
+      status:
+        type: "string"
+        description: "Статус документа, отображаемый на фронте. В зависимости от н\
+          его рисуются кнопки с действиями"
+        required: false
+      ogrn:
+        type: "string"
+        description: "ОГРН клиента"
+        required: false
+      title:
+        type: "string"
+        description: "Заголовок файла"
+        required: false
+      read:
+        type: "boolean"
+        description: "Статус прочитано/не прочитано"
+        required: false
+      meta:
+        type: "object"
+        description: "Дополнительные поля"
+        required: false
+      file:
+        type: "File"
+        required: false
+  File:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Идентификатор ресурса в хранилище, необходим для построения\
+          \ ссылки на скачивание документа"
+        required: false
+      name:
+        type: "string"
+        description: "Имя файла с раширением"
+        required: false
+      mime:
+        type: "string"
+        description: "MIME тип документа"
+        required: false
+      size:
+        type: "integer"
+        format: "int32"
+        description: "Размер файла в байтах"
+        required: false
+  Error:
+    type: "object"
+    description: "The root of the Error type's schema."
+    properties:
+      errorMessage:
+        type: "string"
+        description: "Описание ошибки"
+        required: false
+/documents/{id}:
+  uriParameters:
+    id:
+      type: "string"
+      description: "Идентификатор документа"
+  get:
+    displayName: "Получение документа по идентификатору"
+    description: "Получение документа по идентификатору"
+    responses:
+      200:
+        description: "Найденный документ"
+        body:
+          type: "Document"
+      404:
+        description: "Документ не найден"
+        body:
+          type: "Error"
+  put:
+    displayName: "Обновление документа"
+    description: "Обновление документа"
+    body:
+      type: "Document"
+    responses:
+      200:
+        description: "Документ обновлен"
+        body:
+          type: "Document"
+      400:
+        description: "Не валидные данные"
+        body:
+          type: "Error"
+/documents:
+  get:
+    displayName: "Получение документов"
+    description: "Получение документов (в т.ч. по фильтру)"
+    queryParameters:
+      id:
+        type: "string"
+        description: "Идентификатор документа, поддерживается перечисление через р\
+          азделитель (запятая)"
+        required: false
+    responses:
+      200:
+        description: "Найденные документы"
+        body:
+          type: "array"
+          items:
+            type: "Document"
+  post:
+    displayName: "Создание документа"
+    description: "Создание документа"
+    body:
+      type: "Document"
+    responses:
+      201:
+        description: "Документ создан"
+        body:
+          application/json:
+            type: "string"
+            example:
+              value:
+                id: "asd"
+              strict: false
+      400:
+        description: "Не валидные данные"
+        body:
+          application/json:
+            type: "Error"

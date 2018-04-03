@@ -1,146 +1,232 @@
-#%RAML 1.0
-title: "Document"
-description: "Сервис Document"
-version: "1.0.0"
-types:
-  DocumentCreated:
-    type: "object"
-    properties:
-      id:
-        type: "string"
-        description: "Идентификатор документа"
-  Document:
-    type: "object"
-    properties:
-      allOf:
-        type: "DocumentCreated"
-        required: false
-      createdAt:
-        type: "datetime"
-        description: "Дата создания документа"
-        required: false
-      extId:
-        type: "string"
-        description: "Идентификатор документа во внешней системе"
-        required: false
-      status:
-        type: "string"
-        description: "Статус документа, отображаемый на фронте. В зависимости от н\
-          его рисуются кнопки с действиями"
-        required: false
-      ogrn:
-        type: "string"
-        description: "ОГРН клиента"
-        required: false
-      title:
-        type: "string"
-        description: "Заголовок файла"
-        required: false
-      read:
-        type: "boolean"
-        description: "Статус прочитано/не прочитано"
-        required: false
-      meta:
-        type: "object"
-        description: "Дополнительные поля"
-        required: false
-      file:
-        type: "File"
-        required: false
-  File:
-    type: "object"
-    properties:
-      id:
-        type: "string"
-        description: "Идентификатор ресурса в хранилище, необходим для построения\
-          \ ссылки на скачивание документа"
-        required: false
-      name:
-        type: "string"
-        description: "Имя файла с раширением"
-        required: false
-      mime:
-        type: "string"
-        description: "MIME тип документа"
-        required: false
-      size:
-        type: "integer"
-        format: "int32"
-        description: "Размер файла в байтах"
-        required: false
-  Error:
-    type: "object"
-    description: "The root of the Error type's schema."
-    properties:
-      errorMessage:
-        type: "string"
-        description: "Описание ошибки"
-        required: false
-/documents/{id}:
-  uriParameters:
-    id:
-      type: "string"
-      description: "Идентификатор документа"
-  get:
-    displayName: "Получение документа по идентификатору"
-    description: "Получение документа по идентификатору"
-    responses:
-      200:
-        description: "Найденный документ"
-        body:
-          type: "Document"
-      404:
-        description: "Документ не найден"
-        body:
-          type: "Error"
-  put:
-    displayName: "Обновление документа"
-    description: "Обновление документа"
-    body:
-      type: "Document"
-    responses:
-      200:
-        description: "Документ обновлен"
-        body:
-          type: "Document"
-      400:
-        description: "Не валидные данные"
-        body:
-          type: "Error"
-/documents:
-  get:
-    displayName: "Получение документов"
-    description: "Получение документов (в т.ч. по фильтру)"
-    queryParameters:
-      id:
-        type: "string"
-        description: "Идентификатор документа, поддерживается перечисление через р\
-          азделитель (запятая)"
-        required: false
-    responses:
-      200:
-        description: "Найденные документы"
-        body:
-          type: "array"
-          items:
-            type: "Document"
-  post:
-    displayName: "Создание документа"
-    description: "Создание документа"
-    body:
-      type: "Document"
-    responses:
-      201:
-        description: "Документ создан"
-        body:
-          application/json:
-            type: "string"
-            example:
-              value:
-                id: "asd"
-              strict: false
-      400:
-        description: "Не валидные данные"
-        body:
-          application/json:
-            type: "Error"
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Document",
+    "description": "Сервис Document",
+    "contact": {
+      "name": "Sergey Bulavkin",
+      "url": "http://bcs.ru",
+      "email": "BulavkinSM@msk.bcs.ru"
+    },
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/documents/{id}": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Получение документа по идентификатору",
+        "description": "Получение документа по идентификатору",
+        "responses": {
+          "200": {
+            "description": "Найденный документ",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "404": {
+            "description": "Документ не найден",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Обновление документа",
+        "description": "Обновление документа",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Документ обновлен",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "Не валидные данные",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Идентификатор документа",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/documents": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Получение документов",
+        "description": "Получение документов (в т.ч. по фильтру)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Идентификатор документа, поддерживается перечисление через разделитель (запятая)",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Найденные документы",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Document"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Создание документа",
+        "description": "Создание документа",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Документ создан",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": {
+                "id": "asd"
+              }
+            }
+          },
+          "400": {
+            "description": "Не валидные данные",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DocumentCreated": {
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "Идентификатор документа",
+          "type": "string"
+        }
+      }
+    },
+    "Document": {
+      "properties": {
+        "allOf": {
+          "$ref": "#/definitions/DocumentCreated"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "description": "Дата создания документа",
+          "type": "string"
+        },
+        "extId": {
+          "description": "Идентификатор документа во внешней системе",
+          "type": "string"
+        },
+        "status": {
+          "description": "Статус документа, отображаемый на фронте. В зависимости от него рисуются кнопки с действиями",
+          "type": "string"
+        },
+        "ogrn": {
+          "description": "ОГРН клиента",
+          "type": "string"
+        },
+        "title": {
+          "description": "Заголовок файла",
+          "type": "string"
+        },
+        "read": {
+          "description": "Статус прочитано/не прочитано",
+          "type": "boolean"
+        },
+        "meta": {
+          "description": "Дополнительные поля",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "file": {
+          "$ref": "#/definitions/File",
+          "description": "Сущность файл"
+        }
+      }
+    },
+    "File": {
+      "properties": {
+        "id": {
+          "description": "Идентификатор ресурса в хранилище, необходим для построения ссылки на скачивание документа",
+          "type": "string"
+        },
+        "name": {
+          "description": "Имя файла с раширением",
+          "type": "string"
+        },
+        "mime": {
+          "description": "MIME тип документа",
+          "type": "string"
+        },
+        "size": {
+          "format": "int32",
+          "description": "Размер файла в байтах",
+          "type": "integer"
+        }
+      }
+    },
+    "Error": {
+      "title": "Root Type for Error",
+      "description": "The root of the Error type's schema.",
+      "type": "object",
+      "properties": {
+        "errorMessage": {
+          "description": "Описание ошибки",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
